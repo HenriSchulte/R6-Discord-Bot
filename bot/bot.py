@@ -44,8 +44,11 @@ def write_usernames():
 
 def read_usernames():
     path = os.path.join(os.getcwd(), USERNAME_FILE_NAME)
-    with open(path, 'r') as f:
-        return json.load(f)
+    if os.path.exists(path):
+        with open(path, 'r') as f:
+            return json.load(f)
+    else:
+        return []
 
 
 TOKEN = os.getenv('DISCORD_TOKEN')
