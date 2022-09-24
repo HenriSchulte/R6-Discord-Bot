@@ -6,15 +6,21 @@ import json
 USERNAME_FILE_NAME = 'usernames.json'
 
 def add_username(username):
-    usernames.append(username)
-    write_usernames()
-    return f'Added player {username}'
+    if not username in usernames:
+        usernames.append(username)
+        write_usernames()
+        return f'Added player {username}'
+    else:
+        return f'Player {username} is already on the leaderboard!'
 
 
 def remove_username(username):
-    usernames.remove(username)
-    write_usernames()
-    return f'Removed player {username}'
+    if username in usernames:
+        usernames.remove(username)
+        write_usernames()
+        return f'Removed player {username}'
+    else:
+        return f'Player {username} is not on the leaderboard!'
 
 
 def print_help():
