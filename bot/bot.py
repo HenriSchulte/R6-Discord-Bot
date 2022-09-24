@@ -3,31 +3,50 @@ import discord
 from stats import get_player_stats
 import json
 
-def add_player(username):
+USERNAME_FILE_NAME = 'usernames.json'
+
+def add_username(username):
     usernames.append(username)
-    update_players()
+    write_usernames()
     return f'Added player {username}'
 
-def remove_player(username):
+
+def remove_username(username):
     usernames.remove(username)
-    update_players()
+    write_usernames()
     return f'Removed player {username}'
+
 
 def print_help():
     return 'Valid commands:\n!bbc mmr - Show MMR leaderboard\n!bbc add {username} - Add new player to leaderboard\n!bbc remove {username} - Remove player from leaderboard'
 
+
 def show_leaderboard():
     if len(usernames):
-        leaderboard = ''
-        for username in usernames:
-            player = get_player_stats(username)
-            leaderboard += f'{player.name} | {player.rank} | {player.mmr}\n'
+        players = [get_player_stats(un) for un in usernames]
+        players.sort(key=lambda x: x.mmr, reverse=True)
+        leaderboard = f'```Username            | Rank           | MMR\n{"-" * 45}\n' 
+        for player in players:
+            name_padding = ' ' * (20 - len(player.name))
+            rank_padding = ' ' * (15 - len(player.rank))
+            leaderboard += f'{player.name}{name_padding}| {player.rank}{rank_padding}| {player.mmr}\n'
+        leaderboard += '```'
         return leaderboard
     else:
         return 'No players added to leaderboard yet. Use !bbc add {username}.'
 
-def update_players():
-    os.environ['USERNAMES'] = json.dumps(usernames)
+
+def write_usernames():
+    path = os.path.join(os.getcwd(), USERNAME_FILE_NAME)
+    with open(path, 'w') as f:
+        json.dump(usernames, f)
+
+
+def read_usernames():
+    path = os.path.join(os.getcwd(), USERNAME_FILE_NAME)
+    with open(path, 'r') as f:
+        return json.load(f)
+
 
 TOKEN = os.getenv('DISCORD_TOKEN')
 if not TOKEN:
@@ -36,8 +55,7 @@ if not TOKEN:
 intents = discord.Intents(messages=True, message_content=True)
 client = discord.Client(intents=intents)
 
-un_str = os.getenv('USERNAMES')
-usernames = json.loads(un_str) if un_str else []
+usernames = read_usernames()
 
 @client.event
 async def on_ready():
@@ -55,9 +73,9 @@ async def on_message(message):
                 if split[1] == 'mmr':
                     response = show_leaderboard()
                 elif split[1] == 'add':
-                     response = add_player(split[2])
+                     response = add_username(split[2])
                 elif split[1] == 'remove':
-                    response = remove_player(split[2])
+                    response = remove_username(split[2])
                 else:
                     response = print_help()
             else:
