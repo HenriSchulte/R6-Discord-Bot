@@ -29,10 +29,7 @@ def print_help():
 
 def show_leaderboard():
     if len(usernames):
-        players = []
-        for username in usernames:
-            player = get_player_stats(username)
-            players.append(player)
+        players = [get_player_stats(un) for un in usernames]
         players.sort(key=lambda x: x.mmr, reverse=True)
         leaderboard = f'```Username            | Rank           | MMR\n{"-" * 45}\n' 
         for player in players:
