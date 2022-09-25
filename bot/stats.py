@@ -1,4 +1,3 @@
-import re
 import requests
 from bs4 import BeautifulSoup
 
@@ -27,6 +26,9 @@ def parse_page_content(page_text):
 
 def get_player_stats(username):
     response = get_user_page(username)
-    rank, mmr = parse_page_content(response.text)
-    player = Player(username, rank, mmr)
+    try:
+        rank, mmr = parse_page_content(response.text)
+        player = Player(username, rank, mmr)
+    except:
+        player = Player(username, 'Not found', '')
     return player
