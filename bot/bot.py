@@ -29,15 +29,18 @@ def print_help():
 
 def show_leaderboard():
     if len(usernames):
-        players = [get_player_stats(un) for un in usernames]
-        players.sort(key=lambda x: x.mmr, reverse=True)
-        leaderboard = f'```Username            | Rank           | MMR\n{"-" * 45}\n' 
-        for player in players:
-            name_padding = ' ' * (20 - len(player.name))
-            rank_padding = ' ' * (15 - len(player.rank))
-            leaderboard += f'{player.name}{name_padding}| {player.rank}{rank_padding}| {player.mmr}\n'
-        leaderboard += '```'
-        return leaderboard
+        try:
+            players = [get_player_stats(un) for un in usernames]
+            players.sort(key=lambda x: x.mmr, reverse=True)
+            leaderboard = f'```Username            | Rank           | MMR\n{"-" * 45}\n' 
+            for player in players:
+                name_padding = ' ' * (20 - len(player.name))
+                rank_padding = ' ' * (15 - len(player.rank))
+                leaderboard += f'{player.name}{name_padding}| {player.rank}{rank_padding}| {player.mmr}\n'
+            leaderboard += '```'
+            return leaderboard
+        except Exception as e:
+            return f'Something went wrong trying to generate the leaderboard. Please report this error to someone:\n{e}'
     else:
         return 'No players added to leaderboard yet. Use !bbc add {username}.'
 
@@ -80,6 +83,7 @@ async def on_message(message):
             split = content.split(' ')
             if len(split) > 1:
                 if split[1] == 'mmr':
+                    await message.channel.send('Generating leaderboard...')
                     response = show_leaderboard()
                 elif split[1] == 'add':
                      response = add_username(split[2])
